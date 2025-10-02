@@ -17,10 +17,16 @@ dependencies {
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
+shadowJar {
 
-manifest {
-    attributes 'Main-Class': 'net.nicovrc.dev.Main'
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    manifest {
+        attributes 'Main-Class': 'net.nicovrc.dev.Main'
+    }
 }
