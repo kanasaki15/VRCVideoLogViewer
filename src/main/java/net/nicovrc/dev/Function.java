@@ -1,0 +1,73 @@
+package net.nicovrc.dev;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Function {
+
+    public static String Version = "0.0.1-alpha";
+    private static Pattern matcher_VideoLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Debug      -  \\[Video Playback\\] URL '(.+)' resolved to ");
+    private static Pattern matcher_ImageLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Debug      -  \\[Image Download\\] Attempting to load image from URL '(.+)'");
+    private static Pattern matcher_StringLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Debug      -  \\[String Download\\] Attempting to load String from URL '(.+)'");
+
+    private static SimpleDateFormat logDate = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+
+    public static String getTextForFile(File file){
+        String logText = null;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));){
+            String str;
+            StringBuffer sb = new StringBuffer();
+            while ((str = reader.readLine()) != null) {
+                sb.append(str).append("\n");
+            }
+            logText = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return logText;
+    }
+
+    public static List<LogData> getLogForURL(String logText) throws Exception{
+        ArrayList<LogData> logData = new ArrayList<>();
+
+        for (String s : logText.split("\n")) {
+            Matcher video = matcher_VideoLog.matcher(s);
+            Matcher image = matcher_ImageLog.matcher(s);
+            Matcher string = matcher_StringLog.matcher(s);
+            LogData data = new LogData();
+            if (video.find()){
+                String tempDate = video.group(1)+"."+video.group(2)+"."+video.group(3)+" "+video.group(4)+":"+video.group(5)+":"+video.group(6);
+                data.setLogDate(logDate.parse(tempDate));
+                data.setURL(video.group(7));
+                data.setErrorMessage(null);
+                data.setURLType("Video");
+                logData.add(data);
+            }
+            if (image.find()){
+                String tempDate = image.group(1)+"."+image.group(2)+"."+image.group(3)+" "+image.group(4)+":"+image.group(5)+":"+image.group(6);
+                data.setLogDate(logDate.parse(tempDate));
+                data.setURL(image.group(7));
+                data.setErrorMessage(null);
+                data.setURLType("Image");
+                logData.add(data);
+            }
+            if (string.find()){
+                String tempDate = string.group(1)+"."+string.group(2)+"."+string.group(3)+" "+string.group(4)+":"+string.group(5)+":"+string.group(6);
+                data.setLogDate(logDate.parse(tempDate));
+                data.setURL(string.group(7));
+                data.setErrorMessage(null);
+                data.setURLType("String");
+                logData.add(data);
+            }
+        }
+
+        return logData;
+    }
+
+}
