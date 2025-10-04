@@ -84,7 +84,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - 最初のリリース
+            - とりあえず動く
           draft: false
           prerelease: true
 
