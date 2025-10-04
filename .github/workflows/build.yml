@@ -40,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jar
-          path: ./build/libs/Image2Resize-1.0-SNAPSHOT-all.jar
+          path: ./build/libs/VRCVideoLogViewer-1.0-SNAPSHOT-all.jar
 
   build-24:
     runs-on: ubuntu-24.04
@@ -74,6 +74,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: jar
+
+      - name: Create Release Package
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          wget https://r2.7mi.site/vrc/start.bat
+          zip VRCVideoLogViewer.zip VRCVideoLogViewer-1.0-SNAPSHOT-all.jar start.bat
+        shell: bash
+
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         id: create_release
@@ -95,8 +103,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Image2Resize-1.0-SNAPSHOT-all.jar
-          asset_name: Image2Resize-1.0-SNAPSHOT-all.jar
+          asset_path: ./VRCVideoLogViewer.zip
+          asset_name: VRCVideoLogViewer_v${{ github.ref }}.zip
           asset_content_type: application/java-archive
 
       - name: Delete File
