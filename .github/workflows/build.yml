@@ -92,7 +92,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - とりあえず動く
+            - VRChatが再起動したとき取得できなくなる問題の修正
           draft: false
           prerelease: true
 
