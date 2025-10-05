@@ -202,11 +202,77 @@ public class Main {
             System.out.println(log_sdf.format(lastLogData.getLogDate()));
             System.out.println("[Info] リアルタイム取得開始します...");
         }
-        Timer timer = new Timer();
-        final String lastLogFile = logFolderPass + "\\" + logFileList.getLast();
-        timer.scheduleAtFixedRate(new TimerTask() {
+
+        final String[] temp_lastLogFile = {logFolderPass + "\\" + logFileList.getLast()};
+        Timer timer1 = new Timer();
+        Timer timer2 = new Timer();
+
+        timer1.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                List<String> logFileList = new ArrayList<>();
+                try {
+                    File file = new File(logFolderPass);
+                    for (File f : file.listFiles()){
+                        if (f.getName().startsWith("output_log_")){
+                            logFileList.add(f.getName());
+                        }
+                    }
+
+                    if (logFileList.size() > 1){
+                        List<String> temp = new ArrayList<>();
+
+                        String[] temp1 = new String[logFileList.size()];
+                        long[] temp2 = new long[logFileList.size()];
+                        int i = 0;
+                        for (String s : logFileList) {
+                            Date date = file_sdf.parse(s.replaceAll("output_log_", "").replaceAll("\\.txt", ""));
+                            temp1[i] = s;
+                            temp2[i] = date.getTime();
+                            i++;
+                        }
+
+                        boolean isMove = true;
+                        String te1 = "";
+                        long te2 = -1;
+
+                        while (isMove){
+                            isMove = false;
+                            for (i = 0; i < temp2.length; i++){
+                                if (i + 1 < temp2.length){
+                                    if (temp2[i] >= temp2[i + 1]){
+                                        isMove = true;
+                                        te1 = temp1[i];
+                                        te2 = temp2[i];
+
+                                        temp1[i] = temp1[i + 1];
+                                        temp2[i] = temp2[i + 1];
+                                        temp1[i + 1] = te1;
+                                        temp2[i + 1] = te2;
+                                    }
+                                }
+                            }
+                        }
+
+                        for (i = 0; i < temp1.length; i++){
+                            temp.add(temp1[i]);
+                        }
+                        logFileList = temp;
+                    }
+
+                    temp_lastLogFile[0] = logFolderPass + "\\" + logFileList.getLast();
+                } catch (Exception e){
+                    timer1.cancel();
+                    timer2.cancel();
+                }
+            }
+        }, 0L, 1000L);
+
+        timer2.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                final String lastLogFile = temp_lastLogFile[0];
+
                 try {
                     File f = new File(lastLogFile);
                     for (LogData logData : Function.getLogForURL(Function.getTextForFile(f))){
@@ -227,7 +293,8 @@ public class Main {
                         }
                     }
                 } catch (Exception e){
-                    timer.cancel();
+                    timer1.cancel();
+                    timer2.cancel();
                 }
             }
         }, 0L, 1000L);
