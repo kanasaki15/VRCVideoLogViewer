@@ -57,10 +57,12 @@ public class Function {
             }
 
             if (image_error.find()){
+                //System.out.println(image_error.group(7) + " : " + image_error.group(8));
                 errorList.put(image_error.group(7), image_error.group(8));
             }
 
             if (string_error.find()){
+                //System.out.println(string_error.group(7) + " : " + string_error.group(8));
                 errorList.put(string_error.group(7), string_error.group(8));
             }
 
@@ -76,8 +78,10 @@ public class Function {
                 String tempDate = image.group(1)+"."+image.group(2)+"."+image.group(3)+" "+image.group(4)+":"+image.group(5)+":"+image.group(6);
                 data.setLogDate(logDate.parse(tempDate));
                 data.setURL(image.group(7));
-                if (errorList.get(data.getURL()) != null){
-                    data.setErrorMessage(errorList.get(data.getURL()));
+                //System.out.println(image.group(7) + " : " + errorList.get(image.group(7)));
+                if (errorList.get(image.group(7)) != null){
+                    data.setErrorMessage(errorList.get(image.group(7)));
+                    errorList.remove(image.group(7));
                 } else {
                     data.setErrorMessage(null);
                 }
@@ -88,8 +92,10 @@ public class Function {
                 String tempDate = string.group(1)+"."+string.group(2)+"."+string.group(3)+" "+string.group(4)+":"+string.group(5)+":"+string.group(6);
                 data.setLogDate(logDate.parse(tempDate));
                 data.setURL(string.group(7));
-                if (errorList.get(data.getURL()) != null){
-                    data.setErrorMessage(errorList.get(data.getURL()));
+                //System.out.println(string.group(7) + " : " + errorList.get(string.group(7)));
+                if (errorList.get(string.group(7)) != null){
+                    data.setErrorMessage(errorList.get(string.group(7)));
+                    errorList.remove(string.group(7));
                 } else {
                     data.setErrorMessage(null);
                 }

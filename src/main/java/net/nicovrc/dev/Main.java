@@ -174,12 +174,19 @@ public class Main {
                 try {
                     List<LogData> log = Function.getLogForURL(text);
                     for (LogData logData : log) {
+                        boolean isPrint = false;
                         if (VideoPlayer && logData.getURLType().equals("Video")){
                             System.out.println("["+log_sdf.format(logData.getLogDate())+"] " + logData.getURL() + " ("+logData.getURLType()+")");
+                            isPrint = true;
                         } else if (ImageDownloader && logData.getURLType().equals("Image")){
                             System.out.println("["+log_sdf.format(logData.getLogDate())+"] " + logData.getURL() + " ("+logData.getURLType()+")");
+                            isPrint = true;
                         } else if (StringDownloader && logData.getURLType().equals("String")){
                             System.out.println("["+log_sdf.format(logData.getLogDate())+"] " + logData.getURL() + " ("+logData.getURLType()+")");
+                            isPrint = true;
+                        }
+                        if (isPrint && logData.getErrorMessage() != null){
+                            System.out.println("["+log_sdf.format(logData.getLogDate())+"] エラーメッセージ (ErrorMessage) : " + logData.getErrorMessage());
                         }
 
                         lastLogData.setLogDate(logData.getLogDate());
@@ -192,6 +199,7 @@ public class Main {
                     //e.printStackTrace();
                     if (debugOutput){
                         System.out.println("[Error] ログファイル読み込みに失敗");
+                        e.printStackTrace();
                     }
                 }
             }
