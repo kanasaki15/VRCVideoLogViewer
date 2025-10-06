@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,9 +12,13 @@ import java.util.regex.Pattern;
 public class Function {
 
     public static String Version = "0.1.0-alpha";
-    private static Pattern matcher_VideoLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Debug      -  \\[Video Playback\\] URL '(.+)' resolved to ");
+    private static Pattern matcher_VideoLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Debug      -  \\[Video Playback\\] Attempting to resolve URL '(.+)'");
     private static Pattern matcher_ImageLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Debug      -  \\[Image Download\\] Attempting to load image from URL '(.+)'");
     private static Pattern matcher_StringLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Debug      -  \\[String Download\\] Attempting to load String from URL '(.+)'");
+
+    private static Pattern matcher_VideoErrorLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Warning    -  \\[Video Playback\\] (.+)");
+    private static Pattern matcher_ImageErrorLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Debug      -  \\[Image Download\\] A web request exception occurred while loading image from URL '(.+)'\\. Exception: (.+)");
+    private static Pattern matcher_StringErrorLog = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+) (\\d+):(\\d+):(\\d+) Debug      -  \\[String Download\\] A web request exception occurred while loading string from URL '(.+)'\\. Exception: (.+)");
 
     private static SimpleDateFormat logDate = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
 
@@ -35,12 +40,30 @@ public class Function {
 
     public static List<LogData> getLogForURL(String logText) throws Exception{
         ArrayList<LogData> logData = new ArrayList<>();
+        HashMap<String, String> errorList = new HashMap<>();
 
         for (String s : logText.split("\n")) {
             Matcher video = matcher_VideoLog.matcher(s);
             Matcher image = matcher_ImageLog.matcher(s);
             Matcher string = matcher_StringLog.matcher(s);
+
+            Matcher video_error = matcher_VideoErrorLog.matcher(s);
+            Matcher image_error = matcher_ImageErrorLog.matcher(s);
+            Matcher string_error = matcher_StringErrorLog.matcher(s);
+
             LogData data = new LogData();
+            if (video_error.find()){
+                logData.getLast().setErrorMessage(video_error.group(7));
+            }
+
+            if (image_error.find()){
+                errorList.put(image_error.group(7), image_error.group(8));
+            }
+
+            if (string_error.find()){
+                errorList.put(string_error.group(7), string_error.group(8));
+            }
+
             if (video.find()){
                 String tempDate = video.group(1)+"."+video.group(2)+"."+video.group(3)+" "+video.group(4)+":"+video.group(5)+":"+video.group(6);
                 data.setLogDate(logDate.parse(tempDate));
@@ -53,7 +76,11 @@ public class Function {
                 String tempDate = image.group(1)+"."+image.group(2)+"."+image.group(3)+" "+image.group(4)+":"+image.group(5)+":"+image.group(6);
                 data.setLogDate(logDate.parse(tempDate));
                 data.setURL(image.group(7));
-                data.setErrorMessage(null);
+                if (errorList.get(data.getURL()) != null){
+                    data.setErrorMessage(errorList.get(data.getURL()));
+                } else {
+                    data.setErrorMessage(null);
+                }
                 data.setURLType("Image");
                 logData.add(data);
             }
@@ -61,7 +88,11 @@ public class Function {
                 String tempDate = string.group(1)+"."+string.group(2)+"."+string.group(3)+" "+string.group(4)+":"+string.group(5)+":"+string.group(6);
                 data.setLogDate(logDate.parse(tempDate));
                 data.setURL(string.group(7));
-                data.setErrorMessage(null);
+                if (errorList.get(data.getURL()) != null){
+                    data.setErrorMessage(errorList.get(data.getURL()));
+                } else {
+                    data.setErrorMessage(null);
+                }
                 data.setURLType("String");
                 logData.add(data);
             }

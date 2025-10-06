@@ -278,12 +278,19 @@ public class Main {
                     for (LogData logData : Function.getLogForURL(Function.getTextForFile(f))){
                         if (logData.getLogDate().getTime() > lastLogData.getLogDate().getTime()){
 
+                            boolean isPrint = false;
                             if (VideoPlayer && logData.getURLType().equals("Video")){
                                 System.out.println("["+log_sdf.format(logData.getLogDate())+"] " + logData.getURL() + " ("+logData.getURLType()+")");
+                                isPrint = true;
                             } else if (ImageDownloader && logData.getURLType().equals("Image")){
                                 System.out.println("["+log_sdf.format(logData.getLogDate())+"] " + logData.getURL() + " ("+logData.getURLType()+")");
+                                isPrint = true;
                             } else if (StringDownloader && logData.getURLType().equals("String")){
                                 System.out.println("["+log_sdf.format(logData.getLogDate())+"] " + logData.getURL() + " ("+logData.getURLType()+")");
+                                isPrint = true;
+                            }
+                            if (isPrint && logData.getErrorMessage() != null){
+                                System.out.println("["+log_sdf.format(logData.getLogDate())+"] エラーメッセージ (ErrorMessage) : " + logData.getErrorMessage());
                             }
 
                             lastLogData.setLogDate(logData.getLogDate());
