@@ -92,7 +92,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           body: |
-            - エラーメッセージを出すように
+            -
           draft: false
           prerelease: true
 
