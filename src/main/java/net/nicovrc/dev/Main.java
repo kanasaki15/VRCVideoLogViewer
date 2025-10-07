@@ -158,6 +158,7 @@ public class Main {
             }
         }
 
+        final List<LogData> LogData = new ArrayList<>();
 
         final LogData lastLogData = new LogData();
         lastLogData.setLogDate(new Date());
@@ -193,6 +194,8 @@ public class Main {
                         lastLogData.setURL(logData.getURL());
                         lastLogData.setErrorMessage(logData.getErrorMessage());
                         lastLogData.setURLType(logData.getURLType());
+
+                        LogData.add(logData);
                     }
 
                 } catch (Exception e){
@@ -305,6 +308,8 @@ public class Main {
                             lastLogData.setURL(logData.getURL());
                             lastLogData.setErrorMessage(logData.getErrorMessage());
                             lastLogData.setURLType(logData.getURLType());
+
+                            LogData.add(logData);
                         }
                     }
                 } catch (Exception e){
